@@ -1,21 +1,30 @@
-require("node:dns").setServers(["1.1.1.1"], ["8.8.8.8"]);
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 const express = require("express");
-const app = express();
 const mongoose = require("mongoose");
-const secureMiddleWare = require("./middlewares/secureMiddleWare");
-const amountController = require("./controllers/amountController");
+const app = express();
+
 mongoose
   .connect(
-    "mongodb+srv://shawon:i7tPh7KiFc1TgF2Z@cluster0.adqucwq.mongodb.net/todo?appName=Cluster0",
+    "mongodb+srv://shawon:RYk0Lk5uROTU5x8o@cluster0.adqucwq.mongodb.net/practice?appName=Cluster0",
   )
   .then(() => {
-    console.log("Database connected successfully");
+    console.log("MongoDB connected");
+  })
+  .catch((err) => {
+    console.error("MongoDB connection failed:", err.message);
+    process.exit(1);
   });
 
-app.use(express.json());
+app.post("/todos", async (req, res) => {
+  try {
+    const todo = await Todo.create({ title: req.body.title });
+    res.status(201).json(todo);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
-app.post("/amount", amountController);
-
-app.listen(8000, () => {
-  console.log("Server running on port 8000");
-}); 
+app.listen(5000, () => {
+  console.log("Server running on port 5000");
+});
