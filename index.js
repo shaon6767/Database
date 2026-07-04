@@ -47,6 +47,33 @@ app.get("/todos/:id", async (req, res) => {
   }
 });
 
+app.patch("/todos/:id", async (req, res) => {
+  try {
+    const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!todo) {
+      return res.status(404).json({ error: "Not found" });
+    }
+    res.json(todo);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.delete("/todos/:id", async (req, res) => {
+  try {
+    const todo = await Todo.findByIdAndDelete(req.params.id);
+    if (!todo) {
+      return res.status(404).json({ error: "Not found" });
+    }
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    res.status(404).json({ error: "Not found" });
+  }
+});
+
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });
