@@ -1,79 +1,30 @@
-const dns = require("dns");
-dns.setServers(["8.8.8.8", "1.1.1.1"]);
 const express = require("express");
-const mongoose = require("mongoose");
-const Todo = require("./models/Todo");
+const path = require("path");
+const connectDB = require("./config/db");
+const todoRoutes = require("./routes/todoRoutes");
+const errorHandler = require("./middleware/errorHandler");
+
 const app = express();
 
-mongoose
-  .connect(
-    "mongodb+srv://shawon:RYk0Lk5uROTU5x8o@cluster0.adqucwq.mongodb.net/practice?appName=Cluster0",
-  )
-  .then(() => {
-    console.log("MongoDB connected");
-  })
-  .catch((err) => {
-    console.error("MongoDB connection failed:", err.message);
-    process.exit(1);
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public"), { index: false }));
+
+app.get("/", (req, res) => {
+  res.json({ message: "API working" });
+});
+
+app.get("/app", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.use("/todos", todoRoutes);
+
+app.use(errorHandler);
+
+const PORT = 5000;
+
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
   });
-
-app.post("/todos", async (req, res) => {
-  try {
-    const todo = await Todo.create({ title: req.body.title });
-    res.status(201).json(todo);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-app.get("/todos", async (req, res) => {
-  try {
-    const todos = await Todo.find().sort({ createdAt: -1 });
-    res.json(todos);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.get("/todos/:id", async (req, res) => {
-  try {
-    const todo = await Todo.findById(req.params.id);
-    if (!todo) {
-      return res.status(404).json({ error: "Not found" });
-    }
-    res.json(todo);
-  } catch (err) {
-    res.status(404).json({ error: "Not found" });
-  }
-});
-
-app.patch("/todos/:id", async (req, res) => {
-  try {
-    const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!todo) {
-      return res.status(404).json({ error: "Not found" });
-    }
-    res.json(todo);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-app.delete("/todos/:id", async (req, res) => {
-  try {
-    const todo = await Todo.findByIdAndDelete(req.params.id);
-    if (!todo) {
-      return res.status(404).json({ error: "Not found" });
-    }
-    res.json({ message: "Deleted" });
-  } catch (err) {
-    res.status(404).json({ error: "Not found" });
-  }
-});
-
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
 });
