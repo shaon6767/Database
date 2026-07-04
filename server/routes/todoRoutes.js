@@ -1,16 +1,15 @@
 const express = require("express");
 const router = express.Router();
+const checkTitle = require("../middleware/checkTitle");
 const {
   createTodo,
   getTodos,
-  getTodoById,
   updateTodo,
   deleteTodo,
 } = require("../controllers/todoController");
 
-router.post("/", createTodo);
+router.post("/", checkTitle, createTodo);
 router.get("/", getTodos);
-router.get("/:id", getTodoById);
 router.patch("/:id", updateTodo);
 router.delete("/:id", deleteTodo);
 

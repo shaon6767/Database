@@ -18,18 +18,6 @@ const getTodos = async (req, res, next) => {
   }
 };
 
-const getTodoById = async (req, res, next) => {
-  try {
-    const todo = await Todo.findById(req.params.id);
-    if (!todo) {
-      return res.status(404).json({ error: "Not found" });
-    }
-    res.json(todo);
-  } catch (err) {
-    next(err);
-  }
-};
-
 const updateTodo = async (req, res, next) => {
   try {
     const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, {
@@ -60,7 +48,6 @@ const deleteTodo = async (req, res, next) => {
 module.exports = {
   createTodo,
   getTodos,
-  getTodoById,
   updateTodo,
   deleteTodo,
 };
